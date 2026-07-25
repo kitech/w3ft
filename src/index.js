@@ -49,10 +49,16 @@ export default {
 
     const buffer = await resp.arrayBuffer();
     const charset = detectCharset(resp, buffer);
-    const text = new TextDecoder(charset).decode(buffer);
+    let text = new TextDecoder(charset).decode(buffer);
+    if (charset !== "utf-8") {
+      text = text.replace(/encoding=["'][^"']+["']/i, 'encoding="utf-8"');
+    }
 
     return new Response(text, {
-      headers: { "Content-Type": "application/xml; charset=utf-8" },
+      headers: {
+        "Content-Type": "application/xml; charset=utf-8",
+        "origin-encoding": charset,
+      },
     });
   },
 };
